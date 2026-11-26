@@ -1,0 +1,683 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Академия</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#121316;--card:#1b1d22;--card2:#23262d;--line:#ffffff14;--fg:#f3f4f6;--hint:#9ca3af;--mint:#6ee7b7;--gold:#fcd75f;--danger:#f87171}
+*{box-sizing:border-box}
+body{margin:0;color:var(--fg);background:radial-gradient(1100px 340px at 50% -40px,#353221 0%,var(--bg) 68%);min-height:100vh;font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;padding:14px 14px 48px}
+.top-bar{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.burger{width:40px;height:40px;border-radius:12px;background:var(--card);border:1px solid var(--line);color:var(--fg);font-size:18px;display:grid;place-items:center;padding:0;cursor:pointer}
+h1{font-size:28px;margin:2px 0 4px;letter-spacing:-.02em;font-weight:700}
+h2{font-size:22px;margin:6px 0 4px;letter-spacing:-.01em;font-weight:700}
+.sub{color:var(--hint);font-size:14px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 15px;margin:9px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.grid .card{margin:0}
+.big{font-size:20px;font-weight:700;margin-top:4px}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}
+input[type=text],input[type=number],input[type=time]{width:100%;background:#121316;color:var(--fg);border:1px solid var(--line);border-radius:14px;padding:12px 14px;font-size:14px;outline:0}
+input:focus{border-color:#6ee7b777}
+button{border:0;border-radius:14px;padding:12px 14px;font-size:14px;font-weight:600;color:#111317;background:var(--mint);cursor:pointer}
+button.g{background:var(--card2);color:var(--fg);border:1px solid var(--line)}
+button.d{background:#ef444422;color:var(--danger);border:1px solid #ef444444;padding:8px 11px;font-size:13px;border-radius:11px}
+button.sm{padding:8px 11px;font-size:13px;border-radius:11px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 12px}
+.tab{background:var(--card);color:var(--hint);border:1px solid var(--line);border-radius:14px;padding:12px;font-weight:600}
+.tab.on.soft{background:#1b2e28;color:var(--mint);border-color:#6ee7b766}
+.tab.on.hard{background:#2d291a;color:var(--gold);border-color:#fcd75f66}
+.warn{background:#262317;border:1px solid #eab30844;color:#fde68a;border-radius:14px;padding:11px 13px;font-size:13px;margin:10px 0}
+.ch{display:flex;align-items:center;gap:13px;cursor:pointer;transition:background .15s}
+.ch:hover{background:var(--card2)}
+.ic{width:44px;height:44px;border-radius:13px;background:#6ee7b717;border:1px solid #6ee7b730;display:grid;place-items:center;font-size:19px;flex:none}
+.ic.hard-ic{background:#fcd75f17;border-color:#fcd75f33}
+.ch-body{flex:1;min-width:0}
+.ch-body b{display:block;font-weight:600;font-size:15px}
+.ch-body small{display:block;color:var(--hint);font-size:13px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ch-cnt{color:var(--hint);font:13px ui-monospace,Consolas,monospace;margin-right:4px}
+.ch i{color:var(--hint);font-style:normal;font-size:18px}
+.topic-btn{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:15px;padding:12px 14px;margin:8px 0;font-weight:500}
+.topic-btn:hover{background:var(--card2)}
+.topic-num{width:28px;height:28px;border-radius:9px;background:var(--card2);color:var(--hint);font:600 12px ui-monospace,Consolas,monospace;display:grid;place-items:center;flex:none}
+.topic-txt{flex:1;min-width:0}
+.topic-txt b{display:block;font-size:14px;font-weight:600}
+.topic-txt small{display:block;color:var(--hint);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.topic-arr{color:var(--hint);font-size:17px;flex:none}
+.article-body{white-space:pre-line;font-size:15px;line-height:1.55;margin-top:10px}
+.chk{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.chk:last-child{border:0}
+.chk input{width:20px;height:20px;accent-color:var(--mint);flex:none;cursor:pointer}
+.chk span{flex:1}
+.chk span.done{text-decoration:line-through;color:var(--hint)}
+.hint,.t{color:var(--hint);font-size:13px}.t{font-size:12px}
+.disc{font-size:12px;color:var(--hint);margin-top:14px;line-height:1.45}
+svg{width:100%;height:130px}
+.ln{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.ln:last-child{border:0}
+.drawer-bg{position:fixed;inset:0;background:#00000088;z-index:40;display:none}
+.drawer-bg.open{display:block}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:260px;background:#17191e;border-right:1px solid var(--line);padding:18px 14px;z-index:50;transform:translateX(-100%);transition:transform .2s ease}
+.drawer.open{transform:translateX(0)}
+.drawer-title{font-size:16px;font-weight:700;margin-bottom:12px}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;color:var(--fg);border-radius:12px;padding:11px 12px;margin-bottom:6px;font-weight:500}
+.nav-item.on{background:#6ee7b71a;color:var(--mint)}
+</style></head><body>
+
+<div class="drawer-bg" id="drawerBg"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-title">Разделы</div>
+  <button class="nav-item" data-t="ref">📚 Академия</button>
+  <button class="nav-item" data-t="slp">😴 Сон</button>
+  <button class="nav-item" data-t="chk">✅ Чек-лист</button>
+  <button class="nav-item" data-t="trk">📈 Трекер</button>
+</aside>
+
+<div class="top-bar">
+  <button class="burger" id="burgerBtn" aria-label="Меню">☰</button>
+  <div class="t" id="topHint">Навигация</div>
+</div>
+<h1 id="ttl"></h1><div class="sub" id="sub"></div>
+<div id="v"></div>
+
+<script>
+const tg = window.Telegram && Telegram.WebApp;
+try { if (tg) { tg.ready(); tg.expand(); } } catch (e) {}
+
+const DEFAULT_TASKS = [
+  "SPF утром",
+  "Умывание + крем",
+  "Вечерний уход / актив",
+  "Вода по норме",
+  "Тренировка или активность",
+  "Белок по цели",
+  "Сон 7+ часов"
+];
+const TT = { ref: 'Академия', slp: 'Сон', chk: 'Чек-лист', trk: 'Трекер' };
+
+let S = {
+  tasks: DEFAULT_TASKS.slice(),
+  checks: {},
+  dayHistory: [],
+  sleepLog: [],
+  bodyLog: [],
+  lastUpdated: { sleep: null, check: null, tracker: null }
+};
+let DATA = [], mode = 'soft', tab = 'ref', openSec = null, openItemIdx = null, q = '';
+
+const $ = id => document.getElementById(id);
+const el = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const pad2 = n => String(Math.floor(n)).padStart(2, '0');
+const today = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+};
+const nowStamp = () => {
+  const d = new Date();
+  return `${pad2(d.getDate())}.${pad2(d.getMonth() + 1)} в ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+};
+const touch = key => { S.lastUpdated[key] = nowStamp(); };
+
+function setDrawer(open) {
+  $('drawer').classList.toggle('open', open);
+  $('drawerBg').classList.toggle('open', open);
+}
+$('burgerBtn').onclick = () => setDrawer(true);
+$('drawerBg').onclick = () => setDrawer(false);
+
+function splitItemTitleAndBody(raw) {
+  const idx = raw.indexOf(':');
+  if (idx > 0 && idx < 65) {
+    return {
+      title: raw.slice(0, idx).trim(),
+      body: raw.slice(idx + 1).trim() || raw.trim()
+    };
+  }
+  const firstSentence = raw.split(/(?<=[.!?])\s+/)[0] || raw;
+  return {
+    title: firstSentence.length > 52 ? firstSentence.slice(0, 49).trim() + '…' : firstSentence.trim(),
+    body: raw.trim()
+  };
+}
+
+function save() {
+  const v = JSON.stringify(S);
+  try { localStorage.setItem('ascend_state_v2', v); } catch (e) {}
+  try {
+    if (tg && tg.CloudStorage && tg.CloudStorage.setItem) {
+      tg.CloudStorage.setItem('ascend_state_v2', v, () => {});
+    }
+  } catch (e) {}
+}
+
+function importBotSleep() {
+  const raw = new URLSearchParams(location.search).get('s') || '';
+  if (!raw) return;
+  const toMin = s => parseInt(s.slice(0, 2), 10) * 60 + parseInt(s.slice(2), 10);
+  raw.split(',').filter(Boolean).forEach(part => {
+    const [ymd, bStr, wStr] = part.split('-');
+    if (!ymd || !bStr || !wStr) return;
+    const date = `20${ymd.slice(0, 2)}-${ymd.slice(2, 4)}-${ymd.slice(4, 6)}`;
+    const b = toMin(bStr), w = toMin(wStr);
+    const dur = (w - b + 1440) % 1440;
+    if (!S.sleepLog.some(x => x.date === date && x.bed === b && x.wake === w)) {
+      S.sleepLog.push({ id: `${date}_${b}_${w}`, date, bed: b, wake: w, dur, note: 'из бота' });
+    }
+  });
+  S.sleepLog.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function load(cb) {
+  try {
+    const raw = localStorage.getItem('ascend_state_v2');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      S = Object.assign(S, parsed);
+      S.lastUpdated = Object.assign({ sleep: null, check: null, tracker: null }, parsed.lastUpdated || {});
+      if (!Array.isArray(S.tasks) || !S.tasks.length) S.tasks = DEFAULT_TASKS.slice();
+    }
+  } catch (e) {}
+  importBotSleep();
+  cb();
+  try {
+    if (tg && tg.CloudStorage && tg.CloudStorage.getItem) {
+      tg.CloudStorage.getItem('ascend_state_v2', (err, val) => {
+        if (err || !val) return;
+        try {
+          const c = JSON.parse(val);
+          if (Array.isArray(c.sleepLog)) {
+            c.sleepLog.forEach(item => {
+              if (!S.sleepLog.some(x => x.id === item.id)) S.sleepLog.push(item);
+            });
+            S.sleepLog.sort((a, b) => a.date.localeCompare(b.date));
+          }
+          if (Array.isArray(c.bodyLog)) {
+            c.bodyLog.forEach(item => {
+              if (!S.bodyLog.some(x => x.date === item.date)) S.bodyLog.push(item);
+            });
+            S.bodyLog.sort((a, b) => a.date.localeCompare(b.date));
+          }
+          if (Array.isArray(c.dayHistory)) {
+            c.dayHistory.forEach(item => {
+              if (!S.dayHistory.some(x => x.finishedAt === item.finishedAt)) S.dayHistory.push(item);
+            });
+          }
+          S.checks = Object.assign({}, c.checks || {}, S.checks || {});
+          save();
+          render();
+        } catch (e2) {}
+      });
+    }
+  } catch (e) {}
+}
+
+function filteredSections() {
+  return DATA.filter(sec => (sec.category || 'soft') === mode);
+}
+
+function head() {
+  $('ttl').textContent = TT[tab];
+  if (tab === 'ref') {
+    const list = filteredSections();
+    const guidesCount = list.reduce((acc, s) => acc + s.items.length, 0);
+    $('sub').textContent = `${guidesCount} пунктов · ${list.length} тем`;
+  } else if (tab === 'slp') {
+    $('sub').textContent = S.lastUpdated.sleep
+      ? `Последняя запись: ${S.lastUpdated.sleep}`
+      : 'Записей сна пока нет';
+  } else if (tab === 'chk') {
+    $('sub').textContent = S.lastUpdated.check
+      ? `Последняя запись: ${S.lastUpdated.check}`
+      : 'Отмечай задачи за день и нажми «Закончить день»';
+  } else if (tab === 'trk') {
+    $('sub').textContent = S.lastUpdated.tracker
+      ? `Последняя запись: ${S.lastUpdated.tracker}`
+      : 'Записей в трекере пока нет';
+  }
+}
+
+function ref(v) {
+  const searchInp = el('input');
+  searchInp.type = 'text';
+  searchInp.placeholder = 'Поиск: акне, осанка, сон, прикус…';
+  searchInp.value = q;
+
+  const tabs = el('div', 'tabs');
+  const softCount = DATA.filter(x => (x.category || 'soft') === 'soft').length;
+  const hardCount = DATA.filter(x => x.category === 'hard').length;
+  const bSoft = el('button', 'tab soft' + (mode === 'soft' ? ' on' : ''), `Softmaxx (${softCount})`);
+  const bHard = el('button', 'tab hard' + (mode === 'hard' ? ' on' : ''), `Hardmaxxing (${hardCount})`);
+  bSoft.onclick = () => { mode = 'soft'; openSec = null; openItemIdx = null; render(); };
+  bHard.onclick = () => { mode = 'hard'; openSec = null; openItemIdx = null; render(); };
+  tabs.append(bSoft, bHard);
+
+  const listWrap = el('div');
+  searchInp.oninput = () => { q = searchInp.value; openSec = null; openItemIdx = null; drawRef(listWrap); };
+
+  v.append(searchInp, tabs);
+  if (mode === 'hard') {
+    v.append(el('div', 'warn', '⚠️ Только для информации. Препараты, процедуры и вмешательства — строго после консультации с врачом.'));
+  }
+  v.append(listWrap);
+
+  function drawRef(container) {
+    container.innerHTML = '';
+    const terms = q.toLowerCase().trim().split(/\s+/).filter(w => w.length > 2)
+      .map(w => w.length > 4 ? w.slice(0, w.length - 2) : w);
+
+    if (terms.length) {
+      let found = 0;
+      DATA.forEach(sec => {
+        sec.items.forEach((it, idx) => {
+          if (found < 30 && terms.every(t => it.toLowerCase().includes(t))) {
+            found++;
+            const parsed = splitItemTitleAndBody(it);
+            const btn = el('button', 'topic-btn');
+            btn.append(
+              el('span', 'topic-num', String(found)),
+              (() => {
+                const tx = el('div', 'topic-txt');
+                tx.append(el('b', 0, `${parsed.title} · ${sec.title}`), el('small', 0, parsed.body));
+                return tx;
+              })(),
+              el('span', 'topic-arr', '›')
+            );
+            btn.onclick = () => { openSec = sec; openItemIdx = idx; q = ''; searchInp.value = ''; drawRef(container); scrollTo(0, 0); };
+            container.append(btn);
+          }
+        });
+      });
+      if (!found) container.append(el('div', 'hint', 'Ничего не найдено.'));
+      return;
+    }
+
+    if (openSec && openItemIdx != null && openSec.items[openItemIdx] != null) {
+      const back = el('button', 'g', `← Назад к теме «${openSec.title}»`);
+      back.style.marginBottom = '10px';
+      back.onclick = () => { openItemIdx = null; drawRef(container); scrollTo(0, 0); };
+      container.append(back);
+
+      const parsed = splitItemTitleAndBody(openSec.items[openItemIdx]);
+      const card = el('div', 'card');
+      card.append(
+        el('div', 't', `${openSec.title} · Пункт ${openItemIdx + 1}`),
+        (() => { const h = el('h2'); h.textContent = parsed.title; return h; })(),
+        el('div', 'article-body', parsed.body)
+      );
+      container.append(card);
+      return;
+    }
+
+    if (openSec) {
+      const back = el('button', 'g', '← Все темы');
+      back.style.marginBottom = '10px';
+      back.onclick = () => { openSec = null; openItemIdx = null; drawRef(container); scrollTo(0, 0); };
+      container.append(back);
+
+      const headCard = el('div', 'card');
+      const h = el('h2'); h.textContent = `${openSec.icon || '•'} ${openSec.title}`;
+      headCard.append(h, el('div', 'sub', `${openSec.subtitle || ''} · ${openSec.items.length} пунктов`));
+      container.append(headCard);
+
+      openSec.items.forEach((it, idx) => {
+        const parsed = splitItemTitleAndBody(it);
+        const btn = el('button', 'topic-btn');
+        btn.append(
+          el('span', 'topic-num', String(idx + 1)),
+          (() => {
+            const tx = el('div', 'topic-txt');
+            tx.append(el('b', 0, parsed.title), el('small', 0, parsed.body));
+            return tx;
+          })(),
+          el('span', 'topic-arr', '›')
+        );
+        btn.onclick = () => { openItemIdx = idx; drawRef(container); scrollTo(0, 0); };
+        container.append(btn);
+      });
+      return;
+    }
+
+    const secs = filteredSections();
+    if (!secs.length) {
+      container.append(el('div', 'hint', 'Загрузка разделов…'));
+      return;
+    }
+    secs.forEach(sec => {
+      const card = el('div', 'card ch');
+      const ic = el('div', 'ic' + (sec.category === 'hard' ? ' hard-ic' : ''), sec.icon || '•');
+      const body = el('div', 'ch-body');
+      body.append(el('b', 0, sec.title), el('small', 0, sec.subtitle || ''));
+      const cnt = el('span', 'ch-cnt', String(sec.items.length));
+      const arr = el('i', 0, '›');
+      card.append(ic, body, cnt, arr);
+      card.onclick = () => { openSec = sec; openItemIdx = null; drawRef(container); scrollTo(0, 0); };
+      container.append(card);
+    });
+  }
+
+  drawRef(listWrap);
+  v.append(el('div', 'disc', 'Справочная информация, не медицинская рекомендация. Рецептурные препараты и процедуры — только после консультации с врачом.'));
+}
+
+function parseHHMM(val) {
+  if (!val || !val.includes(':')) return null;
+  const [h, m] = val.split(':').map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m) || h < 0 || h > 23 || m < 0 || m > 59) return null;
+  return h * 60 + m;
+}
+function fmtClock(mins) {
+  const x = ((Math.round(mins) % 1440) + 1440) % 1440;
+  return `${pad2(Math.floor(x / 60))}:${pad2(x % 60)}`;
+}
+function fmtDur(mins) {
+  const m = Math.max(0, Math.round(mins));
+  return `${Math.floor(m / 60)} ч ${pad2(m % 60)} м`;
+}
+
+function slp(v) {
+  const formCard = el('div', 'card');
+  formCard.append(el('div', 't', 'Добавить или обновить запись сна'));
+
+  const r1 = el('div', 'row');
+  r1.style.marginTop = '8px';
+  const bedInp = el('input'); bedInp.type = 'time'; bedInp.value = '23:30';
+  const wakeInp = el('input'); wakeInp.type = 'time'; wakeInp.value = '07:30';
+  const dateInp = el('input'); dateInp.type = 'text'; dateInp.value = today(); dateInp.placeholder = 'ГГГГ-ММ-ДД';
+  r1.append(dateInp, bedInp, wakeInp);
+
+  const r2 = el('div', 'row');
+  r2.style.marginTop = '8px';
+  const noteInp = el('input'); noteInp.type = 'text'; noteInp.placeholder = 'Заметка (опционально)';
+  const addBtn = el('button', 0, 'Сохранить сон');
+  r2.append(noteInp, addBtn);
+
+  let editingId = null;
+  addBtn.onclick = () => {
+    const b = parseHHMM(bedInp.value);
+    const w = parseHHMM(wakeInp.value);
+    const d = (dateInp.value || today()).trim();
+    if (b == null || w == null) return;
+    const dur = (w - b + 1440) % 1440;
+    const entry = {
+      id: editingId || `${d}_${b}_${w}_${Date.now()}`,
+      date: d,
+      bed: b,
+      wake: w,
+      dur,
+      note: noteInp.value.trim()
+    };
+    if (editingId) {
+      S.sleepLog = S.sleepLog.map(x => x.id === editingId ? entry : x);
+      editingId = null;
+      addBtn.textContent = 'Сохранить сон';
+    } else {
+      S.sleepLog.push(entry);
+    }
+    S.sleepLog.sort((a, b2) => a.date.localeCompare(b2.date));
+    touch('sleep');
+    save();
+    render();
+  };
+
+  formCard.append(r1, r2);
+  v.append(formCard);
+
+  if (!S.sleepLog.length) {
+    v.append(el('div', 'card hint', 'Записей пока нет. Добавь запись выше или отправь время отбоя/подъёма боту.'));
+    return;
+  }
+
+  const l7 = S.sleepLog.slice(-7);
+  const avg = arr => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const avgBed = avg(l7.map(e => (e.bed - 1080 + 1440) % 1440)) + 1080;
+  const avgWake = avg(l7.map(e => e.wake));
+  const last = S.sleepLog[S.sleepLog.length - 1];
+
+  const grid = el('div', 'grid');
+  [
+    ['Последняя ночь', fmtDur(last.dur)],
+    ['Среднее за 7', fmtDur(avg(l7.map(e => e.dur)))],
+    ['Средний отбой', fmtClock(avgBed)],
+    ['Средний подъём', fmtClock(avgWake)]
+  ].forEach(([label, val]) => {
+    const c = el('div', 'card');
+    c.append(el('div', 't', label), el('div', 'big', val));
+    grid.append(c);
+  });
+  v.append(grid);
+
+  const listCard = el('div', 'card');
+  listCard.append(el('div', 't', 'История записей'));
+  S.sleepLog.slice().reverse().forEach(entry => {
+    const row = el('div', 'ln');
+    const info = el('div');
+    info.append(
+      el('b', 0, `${entry.date} · ${fmtDur(entry.dur)}`),
+      el('div', 't', `${fmtClock(entry.bed)} → ${fmtClock(entry.wake)}${entry.note ? ' · ' + entry.note : ''}`)
+    );
+    const acts = el('div', 'row');
+    acts.style.flex = 'none';
+    const editB = el('button', 'g sm', 'Изм.');
+    editB.onclick = () => {
+      editingId = entry.id;
+      dateInp.value = entry.date;
+      bedInp.value = fmtClock(entry.bed);
+      wakeInp.value = fmtClock(entry.wake);
+      noteInp.value = entry.note || '';
+      addBtn.textContent = 'Обновить запись';
+      scrollTo(0, 0);
+    };
+    const delB = el('button', 'd', 'Удалить');
+    delB.onclick = () => {
+      S.sleepLog = S.sleepLog.filter(x => x.id !== entry.id);
+      if (editingId === entry.id) { editingId = null; addBtn.textContent = 'Сохранить сон'; }
+      touch('sleep');
+      save();
+      render();
+    };
+    acts.append(editB, delB);
+    row.append(info, acts);
+    listCard.append(row);
+  });
+  v.append(listCard);
+}
+
+function chk(v) {
+  const d = today();
+  S.checks[d] = Array.isArray(S.checks[d]) ? S.checks[d] : [];
+
+  const addCard = el('div', 'card');
+  const addRow = el('div', 'row');
+  const taskInp = el('input');
+  taskInp.type = 'text';
+  taskInp.placeholder = 'Новый пункт чек-листа…';
+  const addTaskBtn = el('button', 0, 'Добавить');
+  const submitTask = () => {
+    const val = taskInp.value.trim();
+    if (!val) return;
+    S.tasks.push(val);
+    taskInp.value = '';
+    touch('check');
+    save();
+    render();
+  };
+  addTaskBtn.onclick = submitTask;
+  taskInp.onkeydown = e => { if (e.key === 'Enter') submitTask(); };
+  addRow.append(taskInp, addTaskBtn);
+  addCard.append(addRow);
+  v.append(addCard);
+
+  const listCard = el('div', 'card');
+  const statusTxt = el('div', 't', `Выполнено ${S.checks[d].length} из ${S.tasks.length} сегодня`);
+  listCard.append(statusTxt);
+
+  S.tasks.forEach((taskName, idx) => {
+    const row = el('div', 'chk');
+    const cb = el('input');
+    cb.type = 'checkbox';
+    cb.checked = S.checks[d].includes(idx);
+    const lbl = el('span', cb.checked ? 'done' : '', taskName);
+    cb.onchange = () => {
+      const arr = S.checks[d];
+      if (cb.checked) {
+        if (!arr.includes(idx)) arr.push(idx);
+      } else {
+        const pos = arr.indexOf(idx);
+        if (pos >= 0) arr.splice(pos, 1);
+      }
+      lbl.className = cb.checked ? 'done' : '';
+      statusTxt.textContent = `Выполнено ${arr.length} из ${S.tasks.length} сегодня`;
+      touch('check');
+      save();
+    };
+    const rmBtn = el('button', 'd', '×');
+    rmBtn.title = 'Удалить пункт';
+    rmBtn.onclick = () => {
+      S.tasks.splice(idx, 1);
+      Object.keys(S.checks).forEach(dayKey => {
+        S.checks[dayKey] = (S.checks[dayKey] || [])
+          .filter(i => i !== idx)
+          .map(i => (i > idx ? i - 1 : i));
+      });
+      touch('check');
+      save();
+      render();
+    };
+    row.append(cb, lbl, rmBtn);
+    listCard.append(row);
+  });
+
+  const endDayBtn = el('button', 0, 'Закончить день');
+  endDayBtn.style.cssText = 'margin-top:12px;width:100%';
+  endDayBtn.onclick = () => {
+    const doneCount = S.checks[d].length;
+    const totalCount = S.tasks.length;
+    const doneTitles = S.checks[d].map(i => S.tasks[i]).filter(Boolean);
+    S.dayHistory.unshift({
+      date: d,
+      finishedAt: nowStamp(),
+      done: doneCount,
+      total: totalCount,
+      items: doneTitles
+    });
+    S.dayHistory = S.dayHistory.slice(0, 30);
+    S.checks[d] = [];
+    touch('check');
+    save();
+    render();
+  };
+  listCard.append(endDayBtn);
+  v.append(listCard);
+
+  if (S.dayHistory.length) {
+    const histCard = el('div', 'card');
+    histCard.append(el('div', 't', 'Завершённые дни'));
+    S.dayHistory.slice(0, 10).forEach(h => {
+      const r = el('div', 'ln');
+      r.append(
+        el('span', 0, `${h.date} (${h.finishedAt})`),
+        el('b', 0, `${h.done}/${h.total}`)
+      );
+      histCard.append(r);
+    });
+    v.append(histCard);
+  }
+}
+
+function trk(v) {
+  const formCard = el('div', 'card');
+  const row = el('div', 'row');
+  const wInp = el('input'); wInp.type = 'number'; wInp.step = '0.1'; wInp.placeholder = 'Вес, кг';
+  const tInp = el('input'); tInp.type = 'number'; tInp.step = '0.1'; tInp.placeholder = 'Талия, см';
+  row.append(wInp, tInp);
+
+  const saveBtn = el('button', 0, 'Записать сегодня');
+  saveBtn.style.cssText = 'margin-top:9px;width:100%';
+  saveBtn.onclick = () => {
+    const w = parseFloat(wInp.value);
+    const t = parseFloat(tInp.value);
+    const weight = Number.isNaN(w) ? null : w;
+    const waist = Number.isNaN(t) ? null : t;
+    if (weight == null && waist == null) return;
+    const stamp = nowStamp();
+    S.bodyLog = S.bodyLog.filter(x => x.date !== today());
+    S.bodyLog.push({ date: today(), weight, waist, updatedAt: stamp });
+    S.bodyLog.sort((a, b) => a.date.localeCompare(b.date));
+    touch('tracker');
+    save();
+    render();
+  };
+  formCard.append(row, saveBtn);
+  v.append(formCard);
+
+  if (!S.bodyLog.length) {
+    v.append(el('div', 'card hint', 'Записей пока нет. Фиксируй вес и талию раз в 1–2 недели в одинаковых условиях.'));
+    return;
+  }
+
+  function drawMetric(key, label, unit) {
+    const pts = S.bodyLog.filter(x => x[key] != null);
+    if (!pts.length) return;
+    const card = el('div', 'card');
+    const lastVal = pts[pts.length - 1][key];
+    card.append(el('b', 0, `${label}: ${lastVal} ${unit}`));
+    if (pts.length > 1) {
+      const vals = pts.map(x => x[key]);
+      const min = Math.min(...vals);
+      const span = (Math.max(...vals) - min) || 1;
+      const poly = pts.map((x, i) => {
+        const px = 10 + (i * 280) / (pts.length - 1);
+        const py = 105 - ((x[key] - min) / span) * 85;
+        return `${px.toFixed(1)},${py.toFixed(1)}`;
+      }).join(' ');
+      const svgWrap = el('div');
+      svgWrap.innerHTML = `<svg viewBox="0 0 300 120"><polyline fill="none" stroke="#6ee7b7" stroke-width="2.5" points="${poly}"/></svg>`;
+      const diff = vals[vals.length - 1] - vals[0];
+      card.append(svgWrap, el('div', 't', `${pts[0].date} → ${pts[pts.length - 1].date} · ${diff > 0 ? '+' : ''}${diff.toFixed(1)} ${unit}`));
+    }
+    v.append(card);
+  }
+
+  drawMetric('weight', 'Вес', 'кг');
+  drawMetric('waist', 'Талия', 'см');
+
+  const logCard = el('div', 'card');
+  logCard.append(el('div', 't', 'История замеров'));
+  S.bodyLog.slice().reverse().forEach(entry => {
+    const r = el('div', 'ln');
+    const parts = [];
+    if (entry.weight != null) parts.push(`${entry.weight} кг`);
+    if (entry.waist != null) parts.push(`талия ${entry.waist} см`);
+    const delB = el('button', 'd', 'Удалить');
+    delB.style.flex = 'none';
+    delB.onclick = () => {
+      S.bodyLog = S.bodyLog.filter(x => x.date !== entry.date);
+      touch('tracker');
+      save();
+      render();
+    };
+    const rightWrap = el('div', 'row');
+    rightWrap.style.flex = 'none';
+    rightWrap.append(el('b', 0, parts.join(' · ')), delB);
+    r.append(el('div', 0, `${entry.date}${entry.updatedAt ? ' · ' + entry.updatedAt : ''}`), rightWrap);
+    logCard.append(r);
+  });
+  v.append(logCard);
+}
+
+function render() {
+  const v = $('v');
+  v.innerHTML = '';
+  head();
+  ({ ref, slp, chk, trk })[tab](v);
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('on', b.dataset.t === tab));
+}
+
+document.querySelectorAll('.nav-item').forEach(b => {
+  b.onclick = () => { tab = b.dataset.t; openSec = null; openItemIdx = null; setDrawer(false); render(); scrollTo(0, 0); };
+});
+window.onerror = m => { $('v').textContent = 'Ошибка: ' + m; };
+
+load(render);
+fetch('content.json')
+  .then(r => r.json())
+  .then(j => { DATA = Array.isArray(j.sections) ? j.sections : []; render(); })
+  .catch(() => {});
+</script></body></html>
