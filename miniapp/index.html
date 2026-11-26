@@ -12,57 +12,64 @@ button{background:var(--ac);color:var(--bt);border:0;border-radius:10px;padding:
 button.g{background:var(--card);color:var(--fg)}
 .sec{cursor:pointer;display:flex;justify-content:space-between}.sec span{color:var(--hint)}
 .chk{display:flex;gap:10px;align-items:center;padding:8px 0}.chk input{width:22px;height:22px;flex:none}
-.item{padding:8px 0;border-bottom:1px solid #ffffff14}.item:last-child{border:0}
+.item{padding:8px 0;border-bottom:1px solid #ffffff14;white-space:pre-line}.item:last-child{border:0}
 nav{position:fixed;left:0;right:0;bottom:0;display:flex;background:var(--card);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
 nav button{flex:1;background:none;color:var(--hint);font-size:13px;padding:8px 2px}nav button.on{color:var(--ac)}
-.big{font-size:28px;font-weight:700}.hint{color:var(--hint);font-size:13px}svg{width:100%;height:130px}
+.hint{color:var(--hint);font-size:13px}svg{width:100%;height:130px}
 .t{font-size:12px;color:var(--hint)}.disc{font-size:12px;color:var(--hint);margin-top:14px}
 </style></head><body>
 <h1 id="ph"></h1><div class="sub" id="dl"></div>
 <div id="v"></div>
 <nav><button data-t="ref" class="on">📚 Справочник</button><button data-t="chk">✅ Чек-лист</button><button data-t="trk">📈 Трекер</button></nav>
 <script>
-const tg=window.Telegram&&Telegram.WebApp;if(tg){tg.ready();tg.expand()}
+const tg=window.Telegram&&Telegram.WebApp;try{if(tg){tg.ready();tg.expand()}}catch(e){}
 const TASKS=["SPF утром","Умывание + крем","Вечерний уход / актив","Вода по норме","Тренировка или 8к шагов","Белок по цели","Сон 7+ часов"];
-let S={checks:{},log:[]},DATA=[],tab='ref',open=-1,q='';
+let S={checks:{},log:[]},DATA=[],tab='ref',openSec=-1,q='';
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
 function save(){const v=JSON.stringify(S);try{localStorage.setItem('d',v)}catch(e){}try{tg&&tg.CloudStorage&&tg.CloudStorage.setItem('d',v,()=>{})}catch(e){}}
 function load(cb){let l=null;try{l=localStorage.getItem('d')}catch(e){}
-const ap=v=>{try{if(v)S=Object.assign(S,JSON.parse(v))}catch(e){}cb()};
-try{if(tg&&tg.CloudStorage&&tg.CloudStorage.getItem)return tg.CloudStorage.getItem('d',(e,v)=>ap(v||l))}catch(e){}ap(l)}
+try{if(l)S=Object.assign(S,JSON.parse(l))}catch(e){}cb();
+try{if(tg&&tg.CloudStorage&&tg.CloudStorage.getItem)tg.CloudStorage.getItem('d',(e,v)=>{try{if(!v)return;const c=JSON.parse(v);
+(c.log||[]).forEach(x=>{if(!S.log.some(y=>y.d===x.d))S.log.push(x)});S.log.sort((a,b)=>a.d<b.d?-1:1);
+Object.keys(c.checks||{}).forEach(k=>{if(!(S.checks[k]&&S.checks[k].length>=c.checks[k].length))S.checks[k]=c.checks[k]});
+save();render()}catch(x){}})}catch(e){}}
 function phase(){const d=today();return d<'2027-04-01'?'Набор (lean bulk)':d<'2027-07-01'?'Сушка':'Поддержка'}
-function head(){$h=document.getElementById('ph');$h.textContent='Фаза: '+phase();
+function head(){document.getElementById('ph').textContent='Фаза: '+phase();
 const n=Math.ceil((new Date('2027-08-31')-new Date(today()))/864e5);document.getElementById('dl').textContent='До конца лета 2027: '+Math.max(n,0)+' дн.'}
 function streak(){let n=0,d=new Date(today());const full=k=>(S.checks[k]||[]).length===TASKS.length;
 if(!full(d.toISOString().slice(0,10)))d.setDate(d.getDate()-1);
 while(full(d.toISOString().slice(0,10))){n++;d.setDate(d.getDate()-1)}return n}
 function ref(v){const s=el('input');s.placeholder='Поиск: акне, сушка, брекеты…';s.value=q;
-s.oninput=()=>{q=s.value;open=-1;list.innerHTML='';fill()};v.append(s);const list=el('div');v.append(list);
+const list=el('div');
+s.oninput=()=>{q=s.value;openSec=-1;list.innerHTML='';fill()};v.append(s,list);
 function fill(){const w=q.toLowerCase().split(/\s+/).filter(x=>x.length>2).map(x=>x.length>4?x.slice(0,x.length-2):x);
-if(w.length){let c=0;DATA.forEach(sec=>sec.items.forEach(it=>{if(c<30&&w.every(x=>it.toLowerCase().includes(x))){c++;const k=el('div','card');k.append(el('div','t',sec.title),el('div',0,it));list.append(k)}}));
+if(w.length){let c=0;DATA.forEach(sec=>sec.items.forEach(it=>{if(c<30&&w.every(x=>it.toLowerCase().includes(x))){c++;const k=el('div','card');k.append(el('div','t',sec.title),el('div','item',it));list.append(k)}}));
 if(!c)list.append(el('div','hint','Ничего не нашёл'));return}
-if(open>=0){const b=el('button','g','← Назад');b.onclick=()=>{open=-1;list.innerHTML='';fill()};list.append(b);
-const k=el('div','card');k.append(el('b',0,DATA[open].title));DATA[open].items.forEach(i=>k.append(el('div','item',i)));list.append(k);return}
-DATA.forEach((sec,i)=>{const k=el('div','card sec');k.append(el('div',0,sec.title),el('span',0,sec.items.length));k.onclick=()=>{open=i;list.innerHTML='';fill();scrollTo(0,0)};list.append(k)})}
+if(openSec>=0){const b=el('button','g','← Назад');b.onclick=()=>{openSec=-1;list.innerHTML='';fill()};list.append(b);
+const k=el('div','card');k.append(el('b',0,DATA[openSec].title));DATA[openSec].items.forEach(i=>k.append(el('div','item',i)));list.append(k);return}
+if(!DATA.length)list.append(el('div','hint','Загрузка справочника…'));
+DATA.forEach((sec,i)=>{const k=el('div','card sec');k.append(el('div',0,sec.title),el('span',0,sec.items.length));k.onclick=()=>{openSec=i;list.innerHTML='';fill();scrollTo(0,0)};list.append(k)})}
 fill();v.append(el('div','disc','Справочная информация, не медицинская рекомендация. Рецептурные препараты и процедуры — только после консультации с врачом.'))}
-function chk(v){const d=today(),a=S.checks[d]=S.checks[d]||[];const k=el('div','card');
-TASKS.forEach((t,i)=>{const r=el('label','chk'),c=el('input');c.type='checkbox';c.checked=a.includes(i);
-c.onchange=()=>{const x=S.checks[d];c.checked?x.includes(i)||x.push(i):x.splice(x.indexOf(i),1);save();head2.textContent=info()};
-r.append(c,el('span',0,t));k.append(r)});v.append(k);const head2=el('div','hint',info());v.append(head2);
-function info(){return 'Выполнено '+(S.checks[d]||[]).length+'/'+TASKS.length+' · серия дней: '+streak()}}
+function chk(v){const d=today();S.checks[d]=S.checks[d]||[];const k=el('div','card');
+const info=()=>'Выполнено '+(S.checks[d]||[]).length+'/'+TASKS.length+' · серия дней: '+streak();
+const h2=el('div','hint',info());
+TASKS.forEach((t,i)=>{const r=el('label','chk'),c=el('input');c.type='checkbox';c.checked=S.checks[d].includes(i);
+c.onchange=()=>{const x=S.checks[d];if(c.checked){if(!x.includes(i))x.push(i)}else x.splice(x.indexOf(i),1);save();h2.textContent=info()};
+r.append(c,el('span',0,t));k.append(r)});v.append(k,h2)}
 function trk(v){const k=el('div','card'),r=el('div','row'),w=el('input'),t=el('input');
 w.type=t.type='number';w.step=t.step='0.1';w.placeholder='Вес, кг';t.placeholder='Талия, см';r.append(w,t);
 const b=el('button',0,'Записать сегодня');b.style.marginTop='8px';b.style.width='100%';
+const out=el('div');
 b.onclick=()=>{const x={d:today(),w:parseFloat(w.value)||null,t:parseFloat(t.value)||null};if(!x.w&&!x.t)return;
 S.log=S.log.filter(e=>e.d!==x.d);S.log.push(x);S.log.sort((a,b)=>a.d<b.d?-1:1);save();draw()};
-k.append(r,b);v.append(k);const out=el('div');v.append(out);
+k.append(r,b);v.append(k,out);
 function line(key,name){const p=S.log.filter(e=>e[key]!=null);if(p.length<1)return;
 const c=el('div','card');c.append(el('b',0,name+': '+p[p.length-1][key]));
 if(p.length>1){const vs=p.map(e=>e[key]),mn=Math.min(...vs),mx=Math.max(...vs),sp=mx-mn||1;
 const pts=p.map((e,i)=>(10+i*280/(p.length-1)).toFixed(1)+','+(110-(e[key]-mn)/sp*90).toFixed(1)).join(' ');
 const d=el('div');d.innerHTML='<svg viewBox="0 0 300 120"><polyline fill="none" stroke="var(--ac)" stroke-width="2.5" points="'+pts+'"/></svg>';c.append(d);
-c.append(el('div','t',p[0].d+' → '+p[p.length-1].d+' · '+(vs[vs.length-1]-vs[0]>0?'+':'')+(vs[vs.length-1]-vs[0]).toFixed(1))))}
+const df=vs[vs.length-1]-vs[0];c.append(el('div','t',p[0].d+' → '+p[p.length-1].d+' · '+(df>0?'+':'')+df.toFixed(1)))}
 out.append(c)}
 function draw(){out.innerHTML='';line('w','Вес');line('t','Талия');
 if(!S.log.length)out.append(el('div','hint','Записей пока нет. Замеряйся раз в 2 недели, в одно и то же время.'));
@@ -71,5 +78,7 @@ draw()}
 function render(){const v=document.getElementById('v');v.innerHTML='';({ref,chk,trk})[tab](v);
 document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===tab))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{tab=b.dataset.t;render();scrollTo(0,0)});
-fetch('content.json').then(r=>r.json()).then(j=>{DATA=j.sections;load(()=>{head();render()})}).catch(()=>{load(()=>{head();render()})});
+window.onerror=m=>{document.getElementById('v').textContent='Ошибка: '+m};
+load(()=>{head();render()});
+fetch('content.json').then(r=>r.json()).then(j=>{DATA=j.sections;render()}).catch(()=>{});
 </script></body></html>
