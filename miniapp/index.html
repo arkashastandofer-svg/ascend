@@ -217,7 +217,8 @@ function head() {
   if (tab === 'ref') {
     const list = filteredSections();
     const guidesCount = list.reduce((acc, s) => acc + s.items.length, 0);
-    $('sub').textContent = `${guidesCount} пунктов · ${list.length} тем`;
+    const all = DATA.reduce((n, s) => n + s.items.length, 0);
+    $('sub').textContent = `${all} гайдов · ${DATA.length} тем`;
   } else if (tab === 'slp') {
     $('sub').textContent = S.lastUpdated.sleep
       ? `Последняя запись: ${S.lastUpdated.sleep}`
